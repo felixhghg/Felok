@@ -1,5 +1,5 @@
 import os
-from loader import command, install_module, mp, ENM, remove_module
+from loader import command, install_module, mp, ENM, remove_module, loaded_modules, builtinx, module_commands
 
 
 class Loader:
@@ -77,3 +77,22 @@ class Loader:
                 await event.edit(f"❌ **Ошибка при отправке:** `{e}`")
         else:
             await event.edit(f"❌ **Модуль** `{mn}` **не найден**")
+
+    @command("list", aliases=["ml", "l"])
+    async def list_cmd(self, event: ENM):
+        """Список загруженных модулей"""
+        if not loaded_modules:
+            return await event.edit("📭 **Список модулей пуст**")
+
+        text = "📦 **Загруженные модули:**\n"
+        for i, mn in enumerate(loaded_modules.keys(), 1):
+
+            prefix = "⚙️" if mn.lower() in builtinx else "📄"
+            cmds = ""
+            for x in module_commands[mn]:
+                cmds += " / ".join(x)+ " | "
+
+            cmds = cmds[:-3]
+            text += f"{i}. {prefix} `{mn}`: {cmds}\n"
+
+        await event.edit(text)

@@ -13,24 +13,56 @@ mp = os.path.join(os.path.dirname(os.path.abspath(__file__)),"modules")
 cl: FelokClient | None = None
 builtinx = ["mloader","loader"]
 loaded_modules = {}
+module_commands = {}
 
 ENM = telethon.events.NewMessage.Event
 
-def command(cmd="", outgoing=True, incoming=False):
+def command(cmd="", outgoing=True, incoming=False, aliases=[]):
     """Декоратор для обработки комманд
     :param cmd: Команда
     :param outgoing: Фильтр исходящие сообщения
     :param incoming: Фильтр приходящие сообщения
+    :param aliases: Псевдонимы
     """
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             event = args[-1]
-            if event.raw_text and cl and event.raw_text.startswith(cl.prefix + cmd):
-                return await func(*args, **kwargs)
+            if event.raw_text and cl:
+                possible_commands = [cmd] + aliases
+                for c in possible_commands:
+                    if event.raw_text.startswith(cl.prefix + c):
+                        return await func(*args, **kwargs)
             return None
 
         wrapper._is_command = True
+        wrapper._cmd = [cmd] + aliases
+        wrapper._config = {'outgoing': outgoing, 'incoming': incoming}
+
+        return wrapper
+    return decorator
+
+def watcher(outgoing=True, incoming=False, sticker=True, gif=True, video_note=True, voice=True, video=True, photo=True, document=True):
+    """Декоратор для обработки ВСЕХ новых сообщений
+    :param outgoing: Фильтр исходящие сообщения
+    :param incoming: Фильтр приходящие сообщения
+    :param sticker: обрабатывать стикеры?
+    :param gif: обрабатывать гифки?
+    :param video_note: обрабатывать кружки?
+    :param voice: обрабатывать голос?
+    :param video: обрабатывать видео?
+    :param photo: обрабатывать фото?
+    :param document: обрабатывать файлы? Все сообщения которые не текстовые
+    """
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            event: ENM = args[-1]
+            if event.message.sticker and not sticker or event.message.gif and not gif or event.message.video_note and not video_note or event.message.voice and not voice or event.message.video and not video or event.message.photo and not photo or event.message.document and not document:
+                return None
+            return await func(*args, **kwargs)
+
+        wrapper._is_watcher = True
         wrapper._config = {'outgoing': outgoing, 'incoming': incoming}
 
         return wrapper
@@ -61,8 +93,14 @@ def install_module(file_path,force=False):
                         "description": getattr(instance, "description", "Нет описания"),
                         "version": getattr(instance, "version", "1.0")
                     }
+                    module_commands[mn] = []
                     for m_name, method in inspect.getmembers(instance, inspect.iscoroutinefunction):
                         if hasattr(method, "_is_command") and cl:
+                            conf = method._config
+                            cl.add_event_handler(method, events.NewMessage(**conf))
+                            loaded_modules[mn].append(method)
+                            module_commands[mn].append(method._cmd)
+                        if hasattr(method, "_is_watcher") and cl:
                             conf = method._config
                             cl.add_event_handler(method, events.NewMessage(**conf))
                             loaded_modules[mn].append(method)
@@ -73,11 +111,13 @@ def install_module(file_path,force=False):
     return False, None
 
 
-def remove_module(mn: str):
+def remove_module(mn1: str):
+    mn = mn1.lower()
     if mn in loaded_modules and mn.lower() not in builtinx:
         for h in loaded_modules[mn]:
             cl.remove_event_handler(h)
         del loaded_modules[mn]
+        del module_commands[mn]
 
 
         if mn in sys.modules:
