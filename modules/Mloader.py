@@ -81,18 +81,26 @@ class Loader:
     @command("list", aliases=["ml", "l"])
     async def list_cmd(self, event: ENM):
         """Список загруженных модулей"""
-        if not loaded_modules:
-            return await event.edit("📭 **Список модулей пуст**")
 
-        text = "📦 **Загруженные модули:**\n"
+        text = " Загруженные модули:\n"
+        st = " Встроенные модули:\n"
         for i, mn in enumerate(loaded_modules.keys(), 1):
+            if mn.lower() not in builtinx:
+                cmds = ""
+                for x in module_commands[mn]:
+                    cmds += " / ".join(x)+ " | "
 
-            prefix = "⚙️" if mn.lower() in builtinx else "📄"
-            cmds = ""
-            for x in module_commands[mn]:
-                cmds += " / ".join(x)+ " | "
+                cmds = cmds[:-3]
+                text += f"{i}. `{mn}`: {cmds}\n"
+            else:
+                cmds = ""
+                for x in module_commands[mn]:
+                    cmds += " / ".join(x) + " | "
 
-            cmds = cmds[:-3]
-            text += f"{i}. {prefix} `{mn}`: {cmds}\n"
+                cmds = cmds[:-3]
+                st += f"{i}. `{mn}`: {cmds}\n"
+
+
+        text += f"\n{st}"
 
         await event.edit(text)

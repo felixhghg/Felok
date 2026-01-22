@@ -15,11 +15,11 @@ class FelokClient(TelegramClient):
         self._api_id = api_id
         self._api_hash = api_hash
         self.phone = phone
-        self._session = session
+        self._session: str | None = session
         self._bsession: FelokBot | None = None
         self.prefix = "."
 
-        super().__init__(session, api_id, api_hash, device_model="F 64bit",system_version="F1",app_version="5.1.7",lang_code="ru",system_lang_code="ru")
+        super().__init__(session, api_id, api_hash, device_model="F 64bit", system_version="F1", app_version="5.1.7", lang_code="ru", system_lang_code="ru")
 
 
 

@@ -1,20 +1,31 @@
-import asyncio
-import base64
-import json
-import os.path
-import random
-import string
+import os
+import sys
 
-import colorama
-import uvicorn
-from fastapi import FastAPI, Body
-from starlette.responses import HTMLResponse, Response
-from telethon import events
-from telethon.tl.types import MessageEntityCode, MessageEntityPre
+try:
+    import asyncio
+    import base64
+    import json
+    import os.path
+    import random
+    import string
 
-import loader
-from FelokClient import FelokClient, FelokBot
-from cipher import encrypt_data, decrypt_data
+    import colorama
+    import uvicorn
+    from fastapi import FastAPI, Body
+    from starlette.responses import HTMLResponse, Response
+    from telethon import events
+    from telethon.tl.types import MessageEntityCode, MessageEntityPre
+
+    import loader
+    from FelokClient import FelokClient, FelokBot
+    from cipher import encrypt_data, decrypt_data
+except:
+    print("Библиотеки не установленны. перезапустите ЮБ после завершения")
+    os.system("pip install -r requirements.txt")
+    print("Библиотеки установленны. перезапустите ЮБ")
+    sys.exit(0)
+
+
 
 cl: FelokClient | None = None
 app = FastAPI()

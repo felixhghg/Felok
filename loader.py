@@ -1,3 +1,4 @@
+import datetime
 import importlib.util
 import os.path
 import sys
@@ -17,7 +18,16 @@ module_commands = {}
 
 ENM = telethon.events.NewMessage.Event
 
-def command(cmd="", outgoing=True, incoming=False, aliases=[]):
+start_time = datetime.datetime.now()
+
+def uptime():
+    return datetime.datetime.now()-start_time
+
+def iscmd(raw_text, param):
+    return raw_text == param or raw_text.startswith(param+" ")
+
+
+def command(cmd="", outgoing=True, incoming=False, aliases=list()):
     """Декоратор для обработки комманд
     :param cmd: Команда
     :param outgoing: Фильтр исходящие сообщения
@@ -31,7 +41,7 @@ def command(cmd="", outgoing=True, incoming=False, aliases=[]):
             if event.raw_text and cl:
                 possible_commands = [cmd] + aliases
                 for c in possible_commands:
-                    if event.raw_text.startswith(cl.prefix + c):
+                    if iscmd(event.raw_text,cl.prefix+c):
                         return await func(*args, **kwargs)
             return None
 
@@ -135,6 +145,12 @@ def load_modules():
     if not os.path.exists(mp):
         os.makedirs(mp)
         return
-    for f in os.listdir(mp):
+    ls = os.listdir(mp)
+    for x in ls:
+        if x.endswith(".py") and x.lower()[::-1].split(".",maxsplit=1)[::-1][0][::-1] in builtinx:
+            print(f"{x}")
+            install_module(os.path.join(mp, x), True)
+            ls.remove(x)
+    for f in ls:
         if f.endswith(".py") and f != "__init__.py":
             install_module(os.path.join(mp, f),True)
