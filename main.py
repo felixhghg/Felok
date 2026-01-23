@@ -1,6 +1,8 @@
 import os
 import sys
 
+import inline
+
 try:
     import asyncio
     import base64
@@ -36,9 +38,9 @@ def openf(f):
 async def index():
     return HTMLResponse(openf("./web/index.html"))
 
-@app.get("/style.css")
-async def style():
-    return Response(openf("./web/style.css"))
+@app.get("/d")
+async def index():
+    return HTMLResponse(openf("./web/done.html"))
 
 @app.get("/assets/{f}")
 async def assets(f):
@@ -203,7 +205,6 @@ async def start_Felok(fr = False):
 
         load_FelokClient()
         if cl._bsession:
-            await asyncio.sleep(10)
             await cl._bsession.start_bot()
 
 
@@ -214,6 +215,9 @@ async def start_Felok(fr = False):
 
     loader.cl = cl
     loader.load_modules()
+
+    inline.cl = cl
+    await inline.setup_callfuncs()
 
 
 

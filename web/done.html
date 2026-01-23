@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Felok</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Ubuntu', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .background {
+            position: fixed;
+            inset: 0;
+            background: url("assets/background3.png") center / cover no-repeat;
+            filter: brightness(0.6);
+            transform: scale(1.1);
+            z-index: -1;
+        }
+
+        .success-card {
+            width: 400px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px);
+            border-radius: 40px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 1s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            background: #fff;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .success-card:hover .icon-box {
+            transform: rotate(10deg) scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+        }
+
+        .icon-box svg {
+            width: 45px;
+            height: 45px;
+            fill: #000;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin: 0 0 10px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .link-btn:hover {
+            background: white;
+            color: black;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .link-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        @media (max-width: 450px) {
+            .success-card {
+                width: 92%;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background"></div>
+
+    <div class="success-card">
+        <div class="icon-box">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+        </div>
+        <h1 id="title">Готово!</h1>
+        <p id="desc">Благодарим за установку Felok Userbot. Настройка завершена, совсем скоро бот напишет вам в Telegram!</p>
+
+        <div class="links">
+            <a href="https://t.me/FelokUB" target="_blank" class="link-btn">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.11.02-1.93 1.23-5.46 3.62-.51.35-.98.52-1.4.51-.46-.01-1.35-.26-2.01-.48-.81-.27-1.45-.42-1.39-.89.03-.25.38-.51 1.07-.77 4.18-1.81 6.97-3.01 8.35-3.59 3.96-1.67 4.79-1.96 5.33-1.97.12 0 .38.03.55.17.14.11.18.27.2.4l.01.12z"/></svg>
+                <span id="btn-ub">Канал ЮБ</span>
+            </a>
+            <a href="https://t.me/cubefel" target="_blank" class="link-btn">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.11.02-1.93 1.23-5.46 3.62-.51.35-.98.52-1.4.51-.46-.01-1.35-.26-2.01-.48-.81-.27-1.45-.42-1.39-.89.03-.25.38-.51 1.07-.77 4.18-1.81 6.97-3.01 8.35-3.59 3.96-1.67 4.79-1.96 5.33-1.97.12 0 .38.03.55.17.14.11.18.27.2.4l.01.12z"/></svg>
+                <span id="btn-dev">Канал разработчика</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            ru: {
+                title: "Готово!",
+                desc: "Благодарим за установку Felok Userbot. Настройка завершена, совсем скоро бот напишет вам в Telegram!",
+                ub: "Канал ЮБ",
+                dev: "Канал разработчика"
+            },
+            en: {
+                title: "Done!",
+                desc: "Thanks for installing Felok Userbot. Setup is complete, the bot will message you on Telegram very soon!",
+                ub: "UB Channel",
+                dev: "Developer Channel"
+            }
+        };
+
+        const savedLang = localStorage.getItem('felok_lang') || 'ru';
+        const t = translations[savedLang];
+
+        document.getElementById('title').innerText = t.title || translations.ru.title;
+        document.getElementById('desc').innerText = t.desc || translations.ru.desc;
+        document.getElementById('btn-ub').innerText = t.ub || translations.ru.ub;
+        document.getElementById('btn-dev').innerText = t.dev || translations.ru.dev;
+    </script>
+
+</body>
+</html>

@@ -27,14 +27,17 @@ class FelokClient(TelegramClient):
         if isinstance(request,self.BLACK_LIST_REQUESTS):
             raise PermissionError("BLACKLISTED REQUESTS")
 
-        return await super().__call__(request,ordered,flood_sleep_threshold,)
+        return await super().__call__(request,ordered,flood_sleep_threshold)
 
     async def start_ub(self):
         await self.connect()
 
         if not await self.is_user_authorized():
-            await self.send_code_request(str(self.phone))
-            return "code"
+            try:
+                await self.send_code_request(str(self.phone))
+                return "code"
+            except:
+                return "nope"
 
 
     async def sign_ub(self,code):

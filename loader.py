@@ -4,10 +4,8 @@ import os.path
 import sys
 from functools import wraps
 import inspect
-
 import telethon.events.newmessage
 from telethon import events
-
 from FelokClient import FelokClient
 
 mp = os.path.join(os.path.dirname(os.path.abspath(__file__)),"modules")
@@ -17,6 +15,7 @@ loaded_modules = {}
 module_commands = {}
 
 ENM = telethon.events.NewMessage.Event
+ECQ = telethon.events.CallbackQuery.Event
 
 start_time = datetime.datetime.now()
 
@@ -148,7 +147,6 @@ def load_modules():
     ls = os.listdir(mp)
     for x in ls:
         if x.endswith(".py") and x.lower()[::-1].split(".",maxsplit=1)[::-1][0][::-1] in builtinx:
-            print(f"{x}")
             install_module(os.path.join(mp, x), True)
             ls.remove(x)
     for f in ls:
