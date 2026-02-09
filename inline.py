@@ -3,9 +3,11 @@ import hashlib
 import time
 from typing import Optional, Callable, Any
 from telethon import Button, events
+from telethon.events import InlineQuery
 
+import loader
 from FelokClient import FelokClient
-
+from loader import _ans_query
 
 cl: Optional[FelokClient] = None
 funcs: Optional[dict[str,Callable[..., Any]]] = {}
@@ -85,46 +87,54 @@ async def send_buttons(entity: Any,
 
 
     async def tmp(event: events.InlineQuery.Event):
-        if event.text != temp_phr: return
-        builder = event.builder
-        results = []
+        if event.query.query == temp_phr:
+            builder = event.builder
+            results = []
 
-        if file:
+            if file:
 
-            results.append(
-                builder.photo(
-                    file,
-                    text=text,
-                    buttons=buttons_to_send
+                results.append(
+                    builder.photo(
+                        file,
+                        text=text,
+                        buttons=buttons_to_send
+                    )
                 )
-            )
-        else:
+            else:
 
-            results.append(
-                builder.article(
-                    title="0",
-                    text=text,
-                    description="i'm nut",
-                    buttons=buttons_to_send
-                )
-            )
+                results = [
+                    builder.article(
+                        title=temp_phr,
+                        text=text,
+                        description="i'm nut",
+                        buttons=buttons_to_send
+                    )
+                ]
+            await event.answer(results)
 
-        await event.answer(results)
+            cl._bsession.remove_event_handler(tmp)
 
-        cl._bsession.remove_event_handler(tmp, events.InlineQuery)
 
-    cl._bsession.add_event_handler(tmp, events.InlineQuery)
+    cl._bsession.add_event_handler(tmp, InlineQuery())
     bot = await cl._bsession.get_me()
-    results = await asyncio.wait_for(cl.inline_query(bot.username, temp_phr), timeout=10.0)
-    if results:
-        return await results[0].click(entity, **kwargs)
-    cl._bsession.remove_event_handler(tmp, events.InlineQuery)
+    try:
+        await asyncio.wait_for(cl.inline_query(bot.username, temp_phr), timeout=10.0)
+        res = await asyncio.wait_for(cl.inline_query(bot.username,temp_phr), timeout=10.0)
+        results = [r for r in res if r.title == temp_phr]
+        if results:
+            return await (results[0]
+                          .click(entity, **kwargs))
+    except Exception as e:
+        print(e)
+    finally:
+        cl._bsession.remove_event_handler(tmp)
+
     return None
 
 
 async def setup_callfuncs():
     if cl._bsession:
-        @cl._bsession.on(events.CallbackQuery)
+        @cl._bsession.on(events.CallbackQuery())
         async def handle_funcs(event):
             data = event.data.decode("utf-8")
             if data in funcs:
@@ -135,3 +145,4 @@ async def setup_callfuncs():
                         await func(event)
                 except Exception as e:
                     print(f"Error in Inline CallFunc: {e}")
+

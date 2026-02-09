@@ -9,7 +9,6 @@ class EchoMod:
 
      @watcher(sticker=False, incoming=False)
      async def watcher(self, m: ENM):
-         print(m._entities)
          if self.enl and m.raw_text != ".okak":
              await m.edit("окак "*len(m.raw_text.split()))
 

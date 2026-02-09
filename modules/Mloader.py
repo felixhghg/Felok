@@ -81,7 +81,7 @@ class Loader:
     @command("list", aliases=["ml", "l"])
     async def list_cmd(self, event: ENM):
         """Список загруженных модулей"""
-
+        await event.edit("Список модулей?")
         text = " Загруженные модули:\n"
         st = " Встроенные модули:\n"
         for i, mn in enumerate(loaded_modules.keys(), 1):

@@ -1,7 +1,15 @@
-from telethon import TelegramClient, functions
-from telethon.errors import SessionPasswordNeededError, PasswordHashInvalidError, CodeInvalidError, \
+import asyncio
+
+from telethon import TelegramClient, functions, events, types
+from telethon.errors import SessionPasswordNeededError, PasswordHashInvalidError, \
     PhoneCodeInvalidError
 
+import loader
+from utils import html_deparse,html_parse
+
+def get_p():
+    with open("./p","r") as f:
+        return f.readlines()[0]
 
 class FelokClient(TelegramClient):
     BLACK_LIST_REQUESTS = (
@@ -17,7 +25,7 @@ class FelokClient(TelegramClient):
         self.phone = phone
         self._session: str | None = session
         self._bsession: FelokBot | None = None
-        self.prefix = "."
+        self.prefix = get_p()
 
         super().__init__(session, api_id, api_hash, device_model="F 64bit", system_version="F1", app_version="5.1.7", lang_code="ru", system_lang_code="ru")
 
@@ -28,6 +36,54 @@ class FelokClient(TelegramClient):
             raise PermissionError("BLACKLISTED REQUESTS")
 
         return await super().__call__(request,ordered,flood_sleep_threshold)
+
+    async def send_message(self, entity, message=None, *args, **kwargs):
+        target = message
+        if target and kwargs.get("parse_mode") == "html":
+            clean_text, entities = html_parse(target)
+            kwargs['formatting_entities'] = (kwargs.get('formatting_entities') or []) + entities
+
+            target = clean_text
+        return await super().send_message(entity, target, *args, **kwargs)
+
+    async def edit_message(self, entity, message=None, text=None, *args, **kwargs):
+        target = text
+        if target and kwargs.get("parse_mode") == "html":
+            clean_text, entities = html_parse(target)
+            kwargs['formatting_entities'] = (kwargs.get('formatting_entities') or []) + entities
+
+            target = clean_text
+        try:
+            await super().edit_message(entity, message,target, *args, **kwargs)
+        except:
+            await super().send_message(entity,target,*args,**kwargs)
+        return
+
+    async def send_file(self, entity, file, caption=None, *args, **kwargs):
+        target = caption
+        if target and kwargs.get("parse_mode") == "html":
+            all_entities = []
+
+            if isinstance(target, str):
+                clean_text, entities = html_parse(target)
+                target = clean_text
+                all_entities = entities
+            elif isinstance(target, list):
+                processed_captions = []
+                for cap_item in target:
+                    if isinstance(cap_item, str):
+                        clean_text, entities = html_parse(cap_item)
+                        processed_captions.append(clean_text)
+                        all_entities.extend(entities)
+                    else:
+                        processed_captions.append(cap_item)
+                target = processed_captions
+
+            if all_entities:
+                kwargs['formatting_entities'] = (kwargs.get('formatting_entities') or []) + all_entities
+
+
+        return await super().send_file(entity, file, caption=target, *args, **kwargs)
 
     async def start_ub(self):
         await self.connect()
@@ -67,11 +123,107 @@ class FelokBot(TelegramClient):
     def __init__(self,api_id,api_hash,bot_token,session="BFelok"):
         self._bot_token = bot_token
         super().__init__(session,api_id,api_hash,device_model="FB 64bit",system_version="FB1",app_version="5.1.7",lang_code="ru",system_lang_code="ru")
+        self._patch()
+
+    def _patch(self):
+
+        async def answer(
+                self, results=None, cache_time=0, *,
+                gallery=False, next_offset=None, private=False,
+                switch_pm=None, switch_pm_param=''):
+
+
+            if self._answered:
+                return []
+
+            loader.inline_answers.extend(results)
+
+            return (results,True)
+
+        events.InlineQuery.Event.answer = answer
+
+
+        async def full_answer(self, results=None, cache_time=0, *,
+                gallery=False, next_offset=None, private=False,
+                switch_pm=None, switch_pm_param=''):
+
+
+            if self._answered:
+                return []
+
+            if results:
+                futures = [self._as_future(x) for x in results]
+
+                await asyncio.wait(futures)
+
+                results = [x.result() for x in futures]
+            else:
+                results = []
+
+            if switch_pm:
+                switch_pm = types.InlineBotSwitchPM(switch_pm, switch_pm_param)
+
+            return await self._client(
+                functions.messages.SetInlineBotResultsRequest(
+                    query_id=self.query.query_id,
+                    results=results,
+                    cache_time=cache_time,
+                    gallery=gallery,
+                    next_offset=next_offset,
+                    private=private,
+                    switch_pm=switch_pm
+                )
+            )
+
+        events.InlineQuery.Event.fanswer = full_answer
 
     async def __call__(self, request, ordered=False, flood_sleep_threshold=None):
         if isinstance(request, self.BLACK_LIST_REQUESTS):
             raise PermissionError("BLACKLISTED REQUESTS IN BOT")
         return await super().__call__(request, ordered, flood_sleep_threshold)
+
+    async def send_message(self, entity, message=None, *args, **kwargs):
+        target = message
+        if target and kwargs.get("parse_mode") == "html":
+            clean_text, entities = html_parse(target)
+            kwargs['formatting_entities'] = (kwargs.get('formatting_entities') or []) + entities
+
+            target = clean_text
+        return await super().send_message(entity, target, *args, **kwargs)
+
+    async def edit_message(self, entity, message=None, text=None, *args, **kwargs):
+        target = text
+        if target and kwargs.get("parse_mode") == "html":
+            clean_text, entities = html_parse(target)
+            kwargs['formatting_entities'] = (kwargs.get('formatting_entities') or []) + entities
+
+            target = clean_text
+        return await super().edit_message(entity, message,target, *args, **kwargs)
+
+    async def send_file(self, entity, file, caption=None, *args, **kwargs):
+        target = caption
+        if target and kwargs.get("parse_mode") == "html":
+            all_entities = []
+
+            if isinstance(target, str):
+                clean_text, entities = html_parse(target)
+                target = clean_text
+                all_entities = entities
+            elif isinstance(target, list):
+                processed_captions = []
+                for cap_item in target:
+                    if isinstance(cap_item, str):
+                        clean_text, entities = html_parse(cap_item)
+                        processed_captions.append(clean_text)
+                        all_entities.extend(entities)
+                    else:
+                        processed_captions.append(cap_item)
+                target = processed_captions
+
+            if all_entities:
+                kwargs['formatting_entities'] = (kwargs.get('formatting_entities') or []) + all_entities
+
+        return await super().send_file(entity, file, caption=target, *args, **kwargs)
 
     async def start_bot(self):
         return await self.start(bot_token=self._bot_token)

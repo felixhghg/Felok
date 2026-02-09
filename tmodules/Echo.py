@@ -9,3 +9,4 @@ class EchoMod:
      @command("echo")
      async def echo(self,event:ENM):
           await event.edit(f"Эхо: {event.raw_text}")
+

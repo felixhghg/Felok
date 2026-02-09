@@ -1,16 +1,18 @@
 import os
 import sys
 
-import inline
-
 try:
+    # import tracemalloc
+    # tracemalloc.start()
+    # debug
+
     import asyncio
     import base64
     import json
     import os.path
     import random
     import string
-
+    import inline
     import colorama
     import uvicorn
     from fastapi import FastAPI, Body
@@ -21,9 +23,11 @@ try:
     import loader
     from FelokClient import FelokClient, FelokBot
     from cipher import encrypt_data, decrypt_data
-except:
+except Exception as e:
+    print(f"Ошибка: {e}")
     print("Библиотеки не установленны. перезапустите ЮБ после завершения")
-    os.system("pip install -r requirements.txt")
+    os.system("py -m pip install -r requirements.txt")
+    os.system("python -m pip install -r requirements.txt")
     print("Библиотеки установленны. перезапустите ЮБ")
     sys.exit(0)
 
