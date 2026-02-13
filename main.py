@@ -1,5 +1,28 @@
+#Version
 import os
+import subprocess
 import sys
+import platform
+
+def get_platform():
+    if os.path.exists('/.dockerenv'):
+        return "Docker"
+    if os.path.exists('/data/data/com.termux'):
+        return "Termux"
+    if 'microsoft-standard' in platform.release().lower():
+        return "WSL"
+    return platform.system()
+
+
+def install_requirements():
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+        return "pip"
+    except Exception as e:
+        if os.name != 'nt':
+            subprocess.run(["sudo","apt","install","python3-pip"])
+            print("Попробуйте: sudo apt install python3-pip")
+        sys.exit(1)
 
 try:
     # import tracemalloc
@@ -25,11 +48,32 @@ try:
     from cipher import encrypt_data, decrypt_data
 except Exception as e:
     print(f"Ошибка: {e}")
-    print("Библиотеки не установленны. перезапустите ЮБ после завершения")
-    os.system("py -m pip install -r requirements.txt")
-    os.system("python -m pip install -r requirements.txt")
-    print("Библиотеки установленны. перезапустите ЮБ")
-    sys.exit(0)
+    if e is ImportError:
+        print("Ошибка импорта, Пробуем установить")
+        if install_requirements() == "pip":
+            try:
+
+                import asyncio
+                import base64
+                import json
+                import os.path
+                import random
+                import string
+                import inline
+                import colorama
+                import uvicorn
+                from fastapi import FastAPI, Body
+                from starlette.responses import HTMLResponse, Response
+                from telethon import events
+                from telethon.tl.types import MessageEntityCode, MessageEntityPre
+
+                import loader
+                from FelokClient import FelokClient, FelokBot
+                from cipher import encrypt_data, decrypt_data
+            except Exception as e:
+                print(f"Ошибка: {e}")
+    else:
+        print("Обратитесь в Issues")
 
 
 
@@ -161,19 +205,58 @@ async def start_Felok(fr = False):
     if fr:
         USR = await cl.get_me()
         FU = create_Felok_US()
+        y = False
         await cl.get_input_entity('@BotFather')
 
 
         await sbf("/start")
         await asyncio.sleep(random.randint(1,2))
-
-        await sbf("/newbot")
-        await asyncio.sleep(random.randint(1,2))
-
-        await sbf(f"Felok⛏ {reduce(USR.username,5)}")
-
-        await sbf(FU)
-        await asyncio.sleep(random.randint(1,2))
+        #
+        # async with cl.conversation(93372553) as conv:
+        #     await conv.send_message("/mybots")
+        #     response = await conv.get_response()
+        #
+        #     fb = []
+        #
+        #     while True:
+        #
+        #         current_buttons = response.reply_markup.rows
+        #
+        #         found_next = False
+        #
+        #         for row in current_buttons:
+        #             for btn in row.buttons:
+        #                 if btn.text.startswith("@Felok"):
+        #                     fb.append(btn)
+        #                     break
+        #
+        #                 if btn.text == "»":
+        #                     found_next = btn
+        #             if len(fb):
+        #                 break
+        #         if len(fb):
+        #             break
+        #
+        #         if found_next:
+        #             await response.click(text="»")
+        #         else:
+        #             break
+        #
+        #     await cl.delete_messages(93372553,[response.id,response.id - 1])
+        #
+        #     for b in fb:
+        #         FU = b.text.replace("@","")
+        #         y = True
+        # await asyncio.sleep(random.randint(1, 2))
+        #
+        # if not y:
+        #     await sbf("/newbot")
+        #     await asyncio.sleep(random.randint(1,2))
+        #
+        #     await sbf(f"Felok⛏ {reduce(USR.username,5)}")
+        #
+        #     await sbf(FU)
+        #     await asyncio.sleep(random.randint(1,2))
 
 
         await sbf("/token")
@@ -249,11 +332,14 @@ $$ |   $$       |$$ |$$    $$/ $$ | $$  |
 $$/     $$$$$$$/ $$/  $$$$$$/  $$/   $$/       
                                                
                                                                                
-    """ + colorama.Fore.LIGHTWHITE_EX + """Felok Userbot 1.0\n\nby: @cubefel""")
+    """ + colorama.Fore.LIGHTWHITE_EX + """Felok Userbot 4.5\n\nby: @cubefel""")
 
     if check_Felok():
         asyncio.run(start_Felok(fr=False))
     else:
-        site_port = random.randint(1,65535)
-        print(f"""Вам необходимо перейти по ссылке http://127.0.0.1:{site_port} """)
+        site_port = 10126
+        if get_platform() != "Windows":
+            print(f"""Вам необходимо перейти по ссылке http://localhost:{site_port} """)
+        else:
+            print(f"""Вам необходимо перейти по ссылке http://127.0.0.1:{site_port} """)
         uvicorn.run(app, host="0.0.0.0", port=site_port,access_log=False,log_level="error")

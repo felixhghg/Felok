@@ -12,13 +12,26 @@ from loader import _ans_query
 cl: Optional[FelokClient] = None
 funcs: Optional[dict[str,Callable[..., Any]]] = {}
 
+def get_style(val):
+    if val in ("danger", "d", "r", "red"):
+        return "danger"
+    elif val in ("primary", "p", "b", "blue"):
+        return "primary"
+    elif val in ("success", "s", "g", "green"):
+        return "success"
+    else:
+        return None
+
 class InlineButton():
     def __init__(
             self,
             text: str,
+            # icon_custom_emoji_id: str = None,
+            # style: str = None,
             callback: Optional[str] = None,
             url: Optional[str] = None,
-            callfunc: Optional[Callable[..., Any]] = None
+            callfunc: Optional[Callable[..., Any]] = None,
+
     ):
         """
         InlineButton Класс кнопки, нужно выбрать один опциональный
@@ -44,6 +57,10 @@ class InlineButton():
         self.callback = callback
         self.url = url
         self.callfunc = callfunc
+        # self.icon_custom_emoji_id = icon_custom_emoji_id
+        # if style:
+        #     style = get_style(style)
+        # self.style = style
 
         if url:
             self.button = Button.url(text, url)
@@ -59,6 +76,10 @@ class InlineButton():
             funcs[hash_str] = callfunc
             self.callback = hash_str
             self.button = Button.inline(text, self.callback)
+
+        # if self.button:
+        #     self.button.icon_custom_emoji_id = icon_custom_emoji_id
+        #     self.button.style = style
 
 def build_rows(btns):
     if isinstance(btns, list):

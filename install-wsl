@@ -1,0 +1,1 @@
+git clone https://github.com/felixhghg/Felok.git && cd Felok && python3 main.py

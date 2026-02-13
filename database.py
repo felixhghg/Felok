@@ -28,9 +28,7 @@ class Database:
 
     def __write_all(self, data: dict):
         try:
-            print(data)
             json_str = json.dumps(data,default=list)
-            print(json_str)
             encrypted = base64.b64encode(encrypt_data(json_str))
             with open(self.__filepath, "wb") as f:
                 f.write(encrypted)
