@@ -1,7 +1,7 @@
 # [Felok Userbot](https://FelokUB.t.me)
 [ ![Russian](https://img.shields.io/badge/lang-ru-green?style=for-the-badge) ](README.md)
 
-Version: 4.5
+Version: 4.6
 
 ###  Installation via WSL (Linux)
 ! WARNING: Installing WSL may cause other virtual machines (VMware, VirtualBox, etc.) to malfunction.

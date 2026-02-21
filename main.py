@@ -48,34 +48,9 @@ try:
     from cipher import encrypt_data, decrypt_data
 except Exception as e:
     print(f"Ошибка: {e}")
-    if e is ImportError:
-        print("Ошибка импорта, Пробуем установить")
-        if install_requirements() == "pip":
-            try:
-
-                import asyncio
-                import base64
-                import json
-                import os.path
-                import random
-                import string
-                import inline
-                import colorama
-                import uvicorn
-                from fastapi import FastAPI, Body
-                from starlette.responses import HTMLResponse, Response
-                from telethon import events
-                from telethon.tl.types import MessageEntityCode, MessageEntityPre
-
-                import loader
-                from FelokClient import FelokClient, FelokBot
-                from cipher import encrypt_data, decrypt_data
-            except Exception as e:
-                print(f"Ошибка: {e}")
-    else:
-        print("Обратитесь в Issues")
-
-
+    if install_requirements() == "pip":
+        args = [sys.executable] + sys.argv
+        os.execv(sys.executable, args)
 
 cl: FelokClient | None = None
 app = FastAPI()
@@ -332,7 +307,7 @@ $$ |   $$       |$$ |$$    $$/ $$ | $$  |
 $$/     $$$$$$$/ $$/  $$$$$$/  $$/   $$/       
                                                
                                                                                
-    """ + colorama.Fore.LIGHTWHITE_EX + """Felok Userbot 4.5\n\nby: @cubefel""")
+    """ + colorama.Fore.LIGHTWHITE_EX + """Felok Userbot 4.6\n\nby: @cubefel""")
 
     if check_Felok():
         asyncio.run(start_Felok(fr=False))

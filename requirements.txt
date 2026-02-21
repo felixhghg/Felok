@@ -5,3 +5,4 @@ starlette~=0.50.0
 Telethon~=1.42.0
 psutil~=7.2.1
 pycryptodome~=3.23.0
+cryptg~=0.5.2

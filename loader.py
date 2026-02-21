@@ -128,6 +128,7 @@ def query(rank:int = None):
     def decorator(func):
         @wraps(func)
         async def wrapper(*args,**kwargs):
+            global inline_answers
             event: EIQ = args[-1]
             if hasattr(args[0], 'db') and rank:
                 if not args[0].db.check_access(event,rank):
@@ -145,11 +146,12 @@ def query(rank:int = None):
 
 async def _ans_query(event: EIQ):
     global inline_answers
-    await event.fanswer(inline_answers,cache_time=0)
+    await event.fanswer(inline_answers)
     inline_answers = []
 
-
-
+def extres(results):
+    global inline_answers
+    inline_answers.extend(results)
 
 def install_module(file_path,force=False):
     if not file_path.endswith(".py"):
